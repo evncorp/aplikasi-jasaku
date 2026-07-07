@@ -5,23 +5,27 @@
 
 // ---- CATEGORIES ----
 const CATEGORIES = [
-  { id: 'suruh', name: 'Jasa Suruh', icon: '🏃', color: '#4361ee', desc: 'Disuruh apa aja bisa', basePrice: 10000 },
-  { id: 'ketik', name: 'Jasa Ketik', icon: '⌨️', color: '#7209b7', desc: 'Ketik dokumen, skripsi, tugas', basePrice: 20000 },
-  { id: 'belanja', name: 'Jasa Belanja', icon: '🛒', color: '#f72585', desc: 'Belikan barang apapun', prepay: true, basePrice: 10000 },
-  { id: 'antar', name: 'Jasa Antar', icon: '📦', color: '#3a0ca3', desc: 'Antar jemput barang/dokumen', basePrice: 15000 },
+  // === JASA MAGER (Prioritas Utama) ===
   { id: 'bersih', name: 'Jasa Bersih', icon: '🧹', color: '#4cc9f0', desc: 'Bersih rumah, kantor, kos', basePrice: 50000 },
-  { id: 'perbaikan', name: 'Jasa Perbaikan', icon: '🔧', color: '#f77f00', desc: 'Perbaiki AC, listrik, pipa', basePrice: 75000 },
-  { id: 'antri', name: 'Jasa Antri', icon: '🧍', color: '#06d6a0', desc: 'Antri di mana saja', basePrice: 15000 },
-  { id: 'pindahan', name: 'Jasa Pindahan', icon: '🚛', color: '#118ab2', desc: 'Bantu pindah rumah/kos', basePrice: 150000 },
-  { id: 'fotokopi', name: 'Jasa Fotokopi', icon: '🖨️', color: '#8338ec', desc: 'Print, fotokopi, scan', basePrice: 10000 },
-  { id: 'masak', name: 'Jasa Masak', icon: '🍳', color: '#e63946', desc: 'Masak makanan pesanan', basePrice: 35000 },
-  { id: 'cuci', name: 'Jasa Cuci', icon: '👕', color: '#457b9d', desc: 'Cuci baju, sepatu, helm', basePrice: 20000 },
-  { id: 'sopir', name: 'Jasa Sopir', icon: '🚗', color: '#2d6a4f', desc: 'Sopir pribadi/rental', basePrice: 100000 },
-  { id: 'tutor', name: 'Jasa Tutor', icon: '📚', color: '#d62828', desc: 'Les privat & bimbingan', basePrice: 50000 },
-  { id: 'desain', name: 'Jasa Desain', icon: '🎨', color: '#9b5de5', desc: 'Desain grafis & editing', basePrice: 50000 },
-  { id: 'foto', name: 'Jasa Foto', icon: '📸', color: '#00bbf9', desc: 'Fotografi & videografi', basePrice: 100000 },
-  { id: 'tukang', name: 'Jasa Tukang', icon: '🔨', color: '#bc6c25', desc: 'Tukang bangunan, cat, las', basePrice: 75000 },
-  { id: 'titip', name: 'Jasa Titip', icon: '🛍️', color: '#e76f51', desc: 'Titip beli dari mana saja', prepay: true, basePrice: 10000 },
+  { id: 'angkut', name: 'Jasa Angkut', icon: '🚛', color: '#118ab2', desc: 'Angkut barang, pindahan, buang sampah besar', basePrice: 100000 },
+  { id: 'kirim-mobil', name: 'Kirim Barang (Mobil)', icon: '🚗', color: '#2d6a4f', desc: 'Kirim barang besar pakai mobil pick-up/box', basePrice: 75000 },
+  { id: 'kirim-motor', name: 'Kirim Barang (Motor)', icon: '🏍️', color: '#3a0ca3', desc: 'Kirim barang kecil/dokumen pakai motor', basePrice: 15000 },
+  { id: 'belanja', name: 'Jasa Belanja', icon: '🛒', color: '#f72585', desc: 'Belikan barang apapun', prepay: true, basePrice: 10000 },
+  { id: 'antar', name: 'Jasa Antar Jemput', icon: '📦', color: '#4361ee', desc: 'Antar jemput barang/dokumen/orang', basePrice: 15000 },
+  { id: 'cuci', name: 'Jasa Cuci', icon: '👕', color: '#457b9d', desc: 'Cuci baju, sepatu, helm, motor', basePrice: 20000 },
+  { id: 'antri', name: 'Jasa Antri', icon: '🧍', color: '#06d6a0', desc: 'Antri di mana saja biar kamu rebahan', basePrice: 15000 },
+  { id: 'suruh', name: 'Jasa Suruh', icon: '🏃', color: '#e76f51', desc: 'Disuruh apa aja bisa, tinggal rebahan!', basePrice: 10000 },
+  { id: 'titip', name: 'Jasa Titip Beli', icon: '🛍️', color: '#f77f00', desc: 'Titip beli makanan/barang dari mana saja', prepay: true, basePrice: 10000 },
+  // === JASA LAINNYA ===
+  { id: 'masak', name: 'Jasa Masak', icon: '🍳', color: '#e63946', desc: 'Masak makanan pesanan di rumahmu', basePrice: 35000 },
+  { id: 'perbaikan', name: 'Jasa Perbaikan', icon: '🔧', color: '#bc6c25', desc: 'Perbaiki AC, listrik, pipa, elektronik', basePrice: 75000 },
+  { id: 'tukang', name: 'Jasa Tukang', icon: '🔨', color: '#8338ec', desc: 'Tukang bangunan, cat, las', basePrice: 75000 },
+  { id: 'ketik', name: 'Jasa Ketik', icon: '⌨️', color: '#7209b7', desc: 'Ketik dokumen, skripsi, tugas', basePrice: 20000 },
+  { id: 'fotokopi', name: 'Jasa Fotokopi', icon: '🖨️', color: '#9b5de5', desc: 'Print, fotokopi, scan', basePrice: 10000 },
+  { id: 'desain', name: 'Jasa Desain', icon: '🎨', color: '#d62828', desc: 'Desain grafis & editing', basePrice: 50000 },
+  { id: 'sopir', name: 'Jasa Sopir', icon: '🚕', color: '#00bbf9', desc: 'Sopir pribadi/rental', basePrice: 100000 },
+  { id: 'tutor', name: 'Jasa Tutor', icon: '📚', color: '#264653', desc: 'Les privat & bimbingan', basePrice: 50000 },
+  { id: 'foto', name: 'Jasa Foto', icon: '📸', color: '#e9c46a', desc: 'Fotografi & videografi', basePrice: 100000 },
   { id: 'lainnya', name: 'Jasa Lainnya', icon: '✨', color: '#4361ee', desc: 'Apa aja bisa disuruh!', basePrice: 10000 },
 ];
 
@@ -31,11 +35,11 @@ const PREPAY_CATEGORIES = ['belanja', 'titip'];
 // ---- TEST / SEED DATA ----
 const SEED_USERS = [
   // === MITRA ===
-  { id: 'mitra1', name: 'Andi Pratama', phone: '081200001111', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.8, reviewCount: 124, bio: 'Siap disuruh apa aja! Pengalaman 3 tahun. Cepat, amanah, dan terpercaya.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip'], isAvailable: true, completedJobs: 234, bankAccount: 'BCA 1234567890 a/n Andi Pratama' },
+  { id: 'mitra1', name: 'Andi Pratama', phone: '081200001111', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.8, reviewCount: 124, bio: 'Siap disuruh apa aja! Pengalaman 3 tahun. Cepat, amanah, dan terpercaya.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'kirim-motor'], isAvailable: true, completedJobs: 234, bankAccount: 'BCA 1234567890 a/n Andi Pratama' },
   { id: 'mitra2', name: 'Sari Dewi', phone: '081200002222', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.9, reviewCount: 89, bio: 'Spesialis jasa ketik cepat & rapi. Skripsi, tugas, laporan, proposal. Bisa juga desain poster.', skills: ['ketik', 'fotokopi', 'desain'], isAvailable: true, completedJobs: 156, bankAccount: 'BNI 0987654321 a/n Sari Dewi' },
-  { id: 'mitra3', name: 'Budi Santoso', phone: '081200003333', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.7, reviewCount: 56, bio: 'Tukang bersih profesional. Rumah, kos, kantor jadi kinclong! Juga bantu pindahan.', skills: ['bersih', 'cuci', 'pindahan', 'tukang'], isAvailable: true, completedJobs: 98, bankAccount: 'BRI 1122334455 a/n Budi Santoso' },
+  { id: 'mitra3', name: 'Budi Santoso', phone: '081200003333', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.7, reviewCount: 56, bio: 'Tukang bersih profesional. Rumah, kos, kantor jadi kinclong! Juga bantu angkut barang.', skills: ['bersih', 'cuci', 'angkut', 'tukang'], isAvailable: true, completedJobs: 98, bankAccount: 'BRI 1122334455 a/n Budi Santoso' },
   { id: 'mitra4', name: 'Rina Marlina', phone: '081200004444', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.6, reviewCount: 43, bio: 'Jago masak berbagai masakan rumahan. Terima pesanan catering dan titip beli makanan.', skills: ['masak', 'belanja', 'titip'], isAvailable: true, completedJobs: 87, bankAccount: 'Mandiri 5566778899 a/n Rina Marlina' },
-  { id: 'mitra5', name: 'Dimas Kurniawan', phone: '081200005555', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.9, reviewCount: 201, bio: 'Servis lengkap! Antar jemput, belanja, antri, titip beli, sopir pribadi. Pengalaman 5 tahun.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'sopir'], isAvailable: true, completedJobs: 312, bankAccount: 'BCA 9988776655 a/n Dimas Kurniawan' },
+  { id: 'mitra5', name: 'Dimas Kurniawan', phone: '081200005555', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.9, reviewCount: 201, bio: 'Servis lengkap! Antar jemput, kirim barang, angkut, sopir pribadi. Pengalaman 5 tahun.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'sopir', 'kirim-mobil', 'kirim-motor', 'angkut'], isAvailable: true, completedJobs: 312, bankAccount: 'BCA 9988776655 a/n Dimas Kurniawan' },
   { id: 'mitra6', name: 'Putri Ayu', phone: '081200006666', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.8, reviewCount: 67, bio: 'Jasa ketik express dan desain grafis. Bisa poster, banner, undangan. Juga terima foto produk.', skills: ['ketik', 'desain', 'fotokopi', 'foto'], isAvailable: false, completedJobs: 145, bankAccount: 'Dana 081200006666 a/n Putri Ayu' },
   // === PELANGGAN ===
   { id: 'plg1', name: 'Ahmad Rizky', phone: '082100001111', role: 'pelanggan', city: 'Makassar', avatar: '', rating: 0, reviewCount: 0 },
