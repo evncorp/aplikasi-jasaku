@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="JasaKu — Platform jasa suruh terpercaya. Butuh bantuan? Dari jasa ketik, jasa belanja, jasa antar, sampai jasa apapun. Pesan sekarang!">
+  <meta name="keywords" content="jasa suruh, jasa ketik, jasa online, marketplace jasa, jasa antar, jasa belanja">
+  <meta name="author" content="JasaKu">
+  <title>JasaKu — Jasa Suruh Apa Aja, Tinggal Pesan!</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main App Container -->
+  <div id="app"></div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav hidden" id="bottomNav">
+    <button class="nav-item" data-page="dashboard" id="nav-home">
+      <span class="material-icons-round nav-icon">home</span>
+      <span>Beranda</span>
+    </button>
+    <button class="nav-item" data-page="katalog" id="nav-katalog">
+      <span class="material-icons-round nav-icon">explore</span>
+      <span>Katalog</span>
+    </button>
+    <button class="nav-item" data-page="riwayat" id="nav-riwayat">
+      <span class="material-icons-round nav-icon">receipt_long</span>
+      <span>Pesanan</span>
+    </button>
+    <button class="nav-item" data-page="profil" id="nav-profil">
+      <span class="material-icons-round nav-icon">person</span>
+      <span>Profil</span>
+    </button>
+  </nav>
+
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-mIzXp3R0cDB4XfKWiVdH17H7ggK_Fng",
+      authDomain: "jasaku-c2738.firebaseapp.com",
+      projectId: "jasaku-c2738",
+      storageBucket: "jasaku-c2738.firebasestorage.app",
+      messagingSenderId: "483596102487",
+      appId: "1:483596102487:web:11d0c208ec2de70e6bec12"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    
+    // Expose to window for app.js to use without converting app.js into a module
+    window.firebaseDB = getFirestore(app);
+    window.firebaseAuth = getAuth(app);
+    window.fs = { collection, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, query, where, addDoc };
+    window.fa = { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut };
+    
+    if (window.initFirebaseApp) window.initFirebaseApp();
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
