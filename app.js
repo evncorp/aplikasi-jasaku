@@ -126,7 +126,7 @@ const S = {
           this.authPhone = user.phoneNumber || '';
           this.authUser = user;
           this.authStep = 'register';
-          if (this.page !== 'auth') R.go('auth');
+          if (this.page !== 'auth') R.go('auth'); else render('auth');
         }
       } else {
         this.user = null;
@@ -1130,6 +1130,7 @@ async function loginWithGoogle() {
   if (!window.fa) { toast('Tunggu sebentar, sedang memuat...', 'info'); return; }
   const provider = new window.fa.GoogleAuthProvider();
   try {
+    toast('Memproses login...', 'info');
     await window.fa.signInWithPopup(window.firebaseAuth, provider);
   } catch (error) {
     toast('Gagal login: ' + error.message, 'error');
@@ -1151,7 +1152,7 @@ async function handleRegSubmit(e) {
     };
     S.authStep = 'skills';
     S.regSkills = [];
-    R.go('auth');
+    render('auth');
   } else {
     // Pelanggan — complete registration
     const user = {
@@ -1161,7 +1162,10 @@ async function handleRegSubmit(e) {
       avatar: S.authUser.photoURL || '', rating: 0, reviewCount: 0,
     };
     await window.fs.setDoc(window.fs.doc(window.firebaseDB, "users", user.id), user);
+    S.user = user;
+    S.authStep = 'phone';
     toast(`Selamat datang, ${user.name}! 🎉`, 'success');
+    R.go('dashboard');
   }
 }
 
@@ -1189,8 +1193,11 @@ async function completeRegistration() {
     completedJobs: 0,
   };
   await window.fs.setDoc(window.fs.doc(window.firebaseDB, "users", user.id), user);
+  S.user = user;
   S.regSkills = []; S._regTemp = null;
+  S.authStep = 'phone';
   toast(`Selamat datang, ${user.name}! Kamu terdaftar sebagai Mitra 💼`, 'success');
+  R.go('mitra');
 }
 
 // ---- ORDER HANDLERS ----
