@@ -34,6 +34,8 @@ const PREPAY_CATEGORIES = ['belanja', 'titip'];
 
 // ---- TEST / SEED DATA ----
 const SEED_USERS = [
+  // === ADMIN ===
+  { id: 'admin1', name: 'Admin JasaKu', role: 'admin', phone: '080000000000', email: 'admin@jasaku.com', avatar: '', isBanned: false },
   // === MITRA ===
   { id: 'mitra1', name: 'Andi Pratama', phone: '081200001111', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.8, reviewCount: 124, bio: 'Siap disuruh apa aja! Pengalaman 3 tahun. Cepat, amanah, dan terpercaya.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'kirim-motor'], isAvailable: true, completedJobs: 234, bankAccount: 'BCA 1234567890 a/n Andi Pratama' },
   { id: 'mitra2', name: 'Sari Dewi', phone: '081200002222', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.9, reviewCount: 89, bio: 'Spesialis jasa ketik cepat & rapi. Skripsi, tugas, laporan, proposal. Bisa juga desain poster.', skills: ['ketik', 'fotokopi', 'desain'], isAvailable: true, completedJobs: 156, bankAccount: 'BNI 0987654321 a/n Sari Dewi' },
@@ -98,7 +100,7 @@ function formatDateTime(d) { return new Date(d).toLocaleDateString('id-ID', { da
 function getInitials(n) { return n.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2); }
 function timeAgo(d) { const s = Math.floor((new Date() - new Date(d)) / 1000); if (s < 60) return 'Baru saja'; if (s < 3600) return Math.floor(s / 60) + 'm lalu'; if (s < 86400) return Math.floor(s / 3600) + 'j lalu'; return Math.floor(s / 86400) + 'h lalu'; }
 function getCat(id) { return CATEGORIES.find(c => c.id === id); }
-function isPrepay(catId) { return false; }
+function isPrepay(catId) { return PREPAY_CATEGORIES.includes(catId); }
 
 // ---- STATE ----
 const S = {
@@ -119,22 +121,31 @@ const S = {
     // Auth Listener
     window.fa.onAuthStateChanged(window.firebaseAuth, async (user) => {
       if (user) {
+        const isPassword = user.providerData.some(p => p.providerId === 'password');
+        if (isPassword && !user.emailVerified) return;
+
         // Fetch user from db
         const docRef = window.fs.doc(window.firebaseDB, "users", user.uid);
         const docSnap = await window.fs.getDoc(docRef);
         if (docSnap.exists()) {
-          this.user = docSnap.data();
-          if (this.page === 'landing' || this.page === 'auth') R.go(this.user.role === 'mitra' ? 'mitra' : 'dashboard');
+          const udata = docSnap.data();
+          if (udata.isBanned) {
+            toast('Akun Anda telah dinonaktifkan oleh Admin.', 'error');
+            window.fa.signOut(window.firebaseAuth);
+            return;
+          }
+          this.user = udata;
+          if (this.page === 'landing' || this.page === 'auth') R.go(this.user.role === 'admin' ? 'admin' : (this.user.role === 'mitra' ? 'mitra' : 'dashboard'));
         } else {
           // New user -> Registration
-          this.authPhone = user.phoneNumber || '';
+          this.authEmail = user.email || '';
           this.authUser = user;
           this.authStep = 'register';
           if (this.page !== 'auth') R.go('auth'); else render('auth');
         }
       } else {
         this.user = null;
-        if (['dashboard', 'mitra', 'katalog', 'riwayat', 'profil', 'pesan', 'chat', 'detail-order'].includes(this.page)) {
+        if (['dashboard', 'mitra', 'katalog', 'riwayat', 'profil', 'pesan', 'chat', 'detail-order', 'admin'].includes(this.page)) {
           R.go('landing');
         }
       }
@@ -155,10 +166,17 @@ const S = {
         // update local user state if it changes remotely
         if (this.user) {
            const remoteUser = this.users.find(u => u.id === this.user.id);
-           if (remoteUser) this.user = remoteUser;
+           if (remoteUser) {
+             if (remoteUser.isBanned) {
+               toast('Akun Anda telah dinonaktifkan oleh Admin.', 'error');
+               window.fa.signOut(window.firebaseAuth);
+             } else {
+               this.user = remoteUser;
+             }
+           }
         }
       }
-      if (this.page === 'katalog' || this.page === 'mitra' || this.page === 'profil') render(this.page, {id: window.location.hash.split('/')[2]});
+      if (['katalog', 'mitra', 'profil', 'admin'].includes(this.page)) render(this.page, {id: window.location.hash.split('/')[2]});
     });
     
     // Listen to reviews
@@ -202,13 +220,16 @@ function toast(msg, type = 'info') {
 // ---- ROUTER ----
 const R = {
   go(page, p = {}) {
-    S.prevPage = S.page; S.page = page;
+    S.prevPage = S.page; 
+    S.prevParam = S.currentParam || {};
+    S.page = page; 
+    S.currentParam = p;
     window.location.hash = `#/${page}${p.id ? '/' + p.id : ''}`;
     render(page, p);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },
   back() {
-    if (S.prevPage) this.go(S.prevPage);
+    if (S.prevPage) this.go(S.prevPage, S.prevParam);
     else this.go(S.user?.role === 'mitra' ? 'mitra' : 'dashboard');
   },
   init() {
@@ -226,12 +247,13 @@ function render(page, p = {}) {
   const app = document.getElementById('app');
   const nav = document.getElementById('bottomNav');
   const withNav = ['dashboard', 'mitra', 'katalog', 'riwayat', 'profil'];
-  const guarded = ['dashboard', 'mitra', 'katalog', 'riwayat', 'profil', 'pesan', 'chat', 'detail-order', 'kelola-jasa', 'tambah-jasa'];
+  const guarded = ['dashboard', 'mitra', 'katalog', 'riwayat', 'profil', 'pesan', 'chat', 'detail-order', 'kelola-jasa', 'tambah-jasa', 'admin'];
 
   if (S.user && withNav.includes(page)) { nav.classList.remove('hidden'); updateNav(page); }
   else nav.classList.add('hidden');
 
   if (guarded.includes(page) && !S.user) { R.go('auth'); return; }
+  if (page === 'admin' && S.user.role !== 'admin') { toast('Akses Ditolak', 'error'); R.go('landing'); return; }
 
   const pages = {
     landing: renderLanding, auth: () => renderAuth(),
@@ -241,6 +263,7 @@ function render(page, p = {}) {
     chat: () => renderChat(p.id), 'detail-order': () => renderDetailOrder(p.id),
     'kelola-jasa': renderKelolaJasa, 'tambah-jasa': renderTambahJasa,
     'mitra-profil': () => renderMitraProfil(p.id),
+    admin: renderAdminDashboard,
   };
 
   app.innerHTML = `<div class="page-enter">${(pages[page] || renderLanding)()}</div>`;
@@ -389,7 +412,7 @@ function renderAuthPhone() {
     <div class="auth-header">
       <div style="font-size:48px;margin-bottom:var(--space-md)">🚀</div>
       <h1>Masuk / Daftar</h1>
-      <p>Pilih peranmu dan masuk dengan Google</p>
+      <p>Pilih peranmu dan masuk ke akunmu</p>
     </div>
 
     <div class="role-selector" id="roleSelector">
@@ -401,7 +424,39 @@ function renderAuthPhone() {
       </div>
     </div>
 
-    <button class="btn btn-block btn-lg" style="margin-top:var(--space-xl);background:white;color:#333;border:1px solid #ddd;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px" onclick="loginWithGoogle()">
+    <form onsubmit="event.preventDefault(); loginWithEmail();" style="margin-top:var(--space-xl)">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="form-input-icon">
+          <span class="material-icons-round input-icon">email</span>
+          <input type="email" class="form-input" id="authEmailInput" placeholder="email@contoh.com" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="form-input-icon">
+          <span class="material-icons-round input-icon">lock</span>
+          <input type="password" class="form-input" id="authPasswordInput" placeholder="Min. 6 karakter" required minlength="6">
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:var(--space-md)">
+        <button type="submit" class="btn btn-primary" style="flex:1">
+          <span class="material-icons-round">login</span> Masuk
+        </button>
+        <button type="button" class="btn btn-ghost" style="flex:1;background:var(--gray-100)" onclick="registerWithEmail()">
+          <span class="material-icons-round">person_add</span> Daftar
+        </button>
+      </div>
+      <div style="text-align:right; margin-top:8px">
+        <a href="#" onclick="event.preventDefault(); handleForgotPassword()" style="font-size:12px;color:var(--primary-500);text-decoration:none;font-weight:600">Lupa Password?</a>
+      </div>
+    </form>
+    
+    <div style="text-align:center;margin:var(--space-lg) 0;color:var(--text-tertiary);font-size:var(--text-sm)">
+      Atau gunakan cara lain
+    </div>
+    
+    <button class="btn btn-block btn-lg" style="background:white;color:#333;border:1px solid #ddd;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px" onclick="loginWithGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:24px;height:24px"> Lanjutkan dengan Google
     </button>
   `;
@@ -1132,6 +1187,31 @@ function bindEvents(page, p) {
 // ---- AUTH HANDLERS ----
 async function loginWithGoogle() {
   if (!window.fa) { toast('Tunggu sebentar, sedang memuat...', 'info'); return; }
+  
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    toast('Bypass login (Local Dev)...', 'success');
+    const emailInput = document.getElementById('authEmailInput')?.value || '';
+    let uid = S.authRole === 'mitra' ? 'mitra5' : 'plg1';
+    if (emailInput === 'admin@jasaku.com') uid = 'admin1';
+
+    const docRef = window.fs.doc(window.firebaseDB, "users", uid);
+    const docSnap = await window.fs.getDoc(docRef);
+    if (docSnap.exists()) {
+      const udata = docSnap.data();
+      if (udata.isBanned) {
+        toast('Akun Anda telah dinonaktifkan oleh Admin.', 'error'); return;
+      }
+      S.user = udata;
+      R.go(S.user.role === 'admin' ? 'admin' : (S.user.role === 'mitra' ? 'mitra' : 'dashboard'));
+    } else {
+      S.authEmail = emailInput || 'test@example.com';
+      S.authUser = { uid: 'newuser1', email: S.authEmail, photoURL: '' };
+      S.authStep = 'register';
+      render('auth');
+    }
+    return;
+  }
+
   const provider = new window.fa.GoogleAuthProvider();
   try {
     toast('Memproses login...', 'info');
@@ -1140,9 +1220,40 @@ async function loginWithGoogle() {
     toast('Gagal login: ' + error.message, 'error');
   }
 }
-function sendOtp() {}
-function startOtpTimer() {}
-function verifyOtp() {}
+
+async function loginWithEmail() {
+  const email = document.getElementById('authEmailInput').value.trim();
+  const password = document.getElementById('authPasswordInput').value.trim();
+  if (!email || !password) return;
+  try {
+    toast('Memproses login...', 'info');
+    const cred = await window.fa.signInWithEmailAndPassword(window.firebaseAuth, email, password);
+    if (!cred.user.emailVerified) {
+       toast('Silakan verifikasi email Anda terlebih dahulu.', 'error');
+       window.fa.signOut(window.firebaseAuth);
+    }
+  } catch(error) {
+    toast('Gagal login: ' + error.message, 'error');
+  }
+}
+
+async function registerWithEmail() {
+  const email = document.getElementById('authEmailInput').value.trim();
+  const password = document.getElementById('authPasswordInput').value.trim();
+  if (!email || password.length < 6) {
+    toast('Email valid dan password min. 6 karakter', 'error');
+    return;
+  }
+  try {
+    toast('Membuat akun...', 'info');
+    const cred = await window.fa.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+    await window.fa.sendEmailVerification(cred.user);
+    toast('Akun dibuat! Silakan cek email Anda untuk verifikasi.', 'success');
+    window.fa.signOut(window.firebaseAuth);
+  } catch(error) {
+    toast('Gagal daftar: ' + error.message, 'error');
+  }
+}
 
 async function handleRegSubmit(e) {
   e.preventDefault();
@@ -1590,4 +1701,95 @@ function initLiveMap(orderId) {
         }
       }
     });
+    });
+}
+
+// ---- ADMIN DASHBOARD ----
+function renderAdminDashboard() {
+  const usersList = S.users.map(u => `
+    <div class="admin-user-card" style="padding:var(--space-md);background:white;border-radius:12px;margin-bottom:var(--space-sm);box-shadow:var(--shadow-sm);display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:700;display:flex;align-items:center;gap:8px">
+          ${u.name || 'User Baru'} <span style="font-size:10px;padding:2px 6px;background:var(--primary-100);color:var(--primary-600);border-radius:12px;text-transform:uppercase">${u.role || 'pending'}</span>
+          ${u.isBanned ? '<span style="font-size:10px;padding:2px 6px;background:#ffebee;color:#c62828;border-radius:12px;text-transform:uppercase">Banned</span>' : ''}
+        </div>
+        <div style="font-size:var(--text-sm);color:var(--text-secondary)">${u.email || u.phone || '-'}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="background:white;border:1px solid #ddd" onclick="adminResetPassword('${u.email}')" title="Reset Password" ${!u.email ? 'disabled' : ''}>
+          <span class="material-icons-round" style="font-size:16px;color:var(--primary-500)">vpn_key</span>
+        </button>
+        <button class="btn btn-sm" style="background:${u.isBanned ? '#e8f5e9' : '#ffebee'};border:1px solid ${u.isBanned ? '#c8e6c9' : '#ffcdd2'}" onclick="toggleBanUser('${u.id}', ${u.isBanned || false})" title="${u.isBanned ? 'Buka Blokir' : 'Blokir'}">
+          <span class="material-icons-round" style="font-size:16px;color:${u.isBanned ? '#2e7d32' : '#c62828'}">${u.isBanned ? 'check_circle' : 'block'}</span>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  return `${hdr('', false)}
+  <div class="container" style="padding-bottom:100px;background:var(--bg-secondary);min-height:100vh">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);padding-top:var(--space-md)">
+      <div>
+        <h1 style="font-size:var(--text-2xl)">Admin Dashboard</h1>
+        <p style="color:var(--text-secondary)">Manajemen Akun Pengguna</p>
+      </div>
+      <button class="btn btn-sm" style="background:white;border:1px solid #ddd" onclick="window.fa.signOut(window.firebaseAuth)"><span class="material-icons-round">logout</span></button>
+    </div>
+    
+    <div class="search-bar" style="margin-bottom:var(--space-md)">
+      <span class="material-icons-round search-icon">search</span>
+      <input type="text" placeholder="Cari pengguna berdasarkan nama/email..." onkeyup="filterAdminUsers(this.value)">
+    </div>
+
+    <div id="adminUserList" style="display:flex;flex-direction:column;gap:8px">
+      ${usersList}
+    </div>
+  </div>`;
+}
+
+function filterAdminUsers(val) {
+  const q = val.toLowerCase();
+  const list = document.getElementById('adminUserList');
+  if (!list) return;
+  const cards = list.querySelectorAll('.admin-user-card');
+  cards.forEach(c => {
+    const text = c.textContent.toLowerCase();
+    c.style.display = text.includes(q) ? 'flex' : 'none';
+  });
+}
+
+async function toggleBanUser(uid, isBanned) {
+  if (!confirm(`Yakin ingin ${isBanned ? 'membuka blokir' : 'memblokir'} pengguna ini?`)) return;
+  try {
+    toast('Memproses...', 'info');
+    await window.fs.updateDoc(window.fs.doc(window.firebaseDB, "users", uid), { isBanned: !isBanned });
+    toast(isBanned ? 'Blokir dibuka' : 'Pengguna diblokir', 'success');
+  } catch (error) {
+    toast('Gagal: ' + error.message, 'error');
+  }
+}
+
+async function adminResetPassword(email) {
+  if (!email || email === 'undefined') { toast('Pengguna ini tidak memiliki email.', 'warning'); return; }
+  if (!confirm('Kirim email reset password ke ' + email + '?')) return;
+  try {
+    await window.fa.sendPasswordResetEmail(window.firebaseAuth, email);
+    toast('Email reset password terkirim!', 'success');
+  } catch (error) {
+    toast('Gagal: ' + error.message, 'error');
+  }
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('authEmailInput')?.value.trim();
+  if (!email) {
+    toast('Masukkan email Anda di kolom email, lalu klik Lupa Password', 'warning');
+    return;
+  }
+  try {
+    await window.fa.sendPasswordResetEmail(window.firebaseAuth, email);
+    toast('Email reset password telah dikirim ke ' + email, 'success');
+  } catch(error) {
+    toast('Gagal: ' + error.message, 'error');
+  }
 }

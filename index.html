@@ -48,11 +48,12 @@
     </button>
   </nav>
 
-  <!-- Firebase Setup -->
+  <script src="app.js"></script>
+  <!-- Firebase Setup (module loads async, calls initFirebaseApp when ready) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, query, where, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-mIzXp3R0cDB4XfKWiVdH17H7ggK_Fng",
@@ -65,14 +66,16 @@
 
     const app = initializeApp(firebaseConfig);
     
-    // Expose to window for app.js to use without converting app.js into a module
     window.firebaseDB = getFirestore(app);
     window.firebaseAuth = getAuth(app);
-    window.fs = { collection, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, query, where, addDoc };
-    window.fa = { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut };
+    window.fs = { collection, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, query, where, addDoc, deleteDoc };
+    window.fa = { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail };
+    window._firebaseReady = true;
     
-    if (window.initFirebaseApp) window.initFirebaseApp();
+    // app.js is a regular script loaded before this module, so initFirebaseApp should exist
+    if (typeof window.initFirebaseApp === 'function') {
+      window.initFirebaseApp();
+    }
   </script>
-  <script src="app.js"></script>
 </body>
 </html>
