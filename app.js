@@ -109,6 +109,7 @@ const S = {
   // Auth flow state
   authStep: 'phone', // phone | otp | register
   authPhone: '', authRole: 'pelanggan', authOtp: '',
+  authInitialized: false,
   // Mitra registration skills
   regSkills: [],
 
@@ -120,9 +121,13 @@ const S = {
     
     // Auth Listener
     window.fa.onAuthStateChanged(window.firebaseAuth, async (user) => {
+      const isFirstLoad = !this.authInitialized;
       if (user) {
         const isPassword = user.providerData.some(p => p.providerId === 'password');
-        if (isPassword && !user.emailVerified) return;
+        if (isPassword && !user.emailVerified) {
+          if (isFirstLoad) { this.authInitialized = true; R.init(); }
+          return;
+        }
 
         // Fetch user from db
         const docRef = window.fs.doc(window.firebaseDB, "users", user.uid);
@@ -132,20 +137,24 @@ const S = {
           if (udata.isBanned) {
             toast('Akun Anda telah dinonaktifkan oleh Admin.', 'error');
             window.fa.signOut(window.firebaseAuth);
+            if (isFirstLoad) { this.authInitialized = true; R.init(); }
             return;
           }
           this.user = udata;
-          if (this.page === 'landing' || this.page === 'auth') R.go(this.user.role === 'admin' ? 'admin' : (this.user.role === 'mitra' ? 'mitra' : 'dashboard'));
+          if (isFirstLoad) { this.authInitialized = true; R.init(); }
+          else if (this.page === 'landing' || this.page === 'auth') R.go(this.user.role === 'admin' ? 'admin' : (this.user.role === 'mitra' ? 'mitra' : 'dashboard'));
         } else {
           // New user -> Registration
           this.authEmail = user.email || '';
           this.authUser = user;
           this.authStep = 'register';
-          if (this.page !== 'auth') R.go('auth'); else render('auth');
+          if (isFirstLoad) { this.authInitialized = true; R.init(); }
+          else if (this.page !== 'auth') R.go('auth'); else render('auth');
         }
       } else {
         this.user = null;
-        if (['dashboard', 'mitra', 'katalog', 'riwayat', 'profil', 'pesan', 'chat', 'detail-order', 'admin'].includes(this.page)) {
+        if (isFirstLoad) { this.authInitialized = true; R.init(); }
+        else if (['dashboard', 'mitra', 'katalog', 'riwayat', 'profil', 'pesan', 'chat', 'detail-order', 'admin'].includes(this.page)) {
           R.go('landing');
         }
       }
@@ -251,6 +260,11 @@ function render(page, p = {}) {
 
   if (S.user && withNav.includes(page)) { nav.classList.remove('hidden'); updateNav(page); }
   else nav.classList.add('hidden');
+
+  if (!S.authInitialized) {
+    app.innerHTML = `<div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="assignment-spinner">🔄</div><p style="margin-top:16px;color:var(--text-tertiary)">Memuat...</p></div>`;
+    return;
+  }
 
   if (guarded.includes(page) && !S.user) { R.go('auth'); return; }
   if (page === 'admin' && S.user.role !== 'admin') { toast('Akses Ditolak', 'error'); R.go('landing'); return; }
@@ -675,7 +689,7 @@ function renderKatalog(p = {}) {
     </div>
 
     <div class="section-header"><h2 class="section-title">Mitra Online</h2></div>
-    ${S.users.filter(u => u.role === 'mitra' && u.isAvailable && (cat === 'semua' || (u.skills && u.skills.includes(cat)))).map(m => renderMitraCard(m)).join('') || '<div class="empty-state"><div class="empty-icon">😴</div><h3>Tidak Ada Mitra Online</h3><p>Coba lagi nanti</p></div>'}
+    ${S.users.filter(u => u.role === 'mitra' && u.isAvailable && !u.isBanned && (cat === 'semua' || (u.skills && u.skills.includes(cat)))).map(m => renderMitraCard(m)).join('') || '<div class="empty-state"><div class="empty-icon">😴</div><h3>Tidak Ada Mitra Online</h3><p>Coba lagi nanti</p></div>'}
   </div>`;
 }
 
