@@ -258,7 +258,7 @@ ul, ol {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background: var(--bg-glass);
+  background: var(--bg-glass-strong);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
@@ -312,12 +312,17 @@ ul, ol {
 }
 
 .header-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: var(--text-lg);
-  flex: 1;
   text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
 }
+
 
 /* ---- Bottom Navigation ---- */
 .bottom-nav {

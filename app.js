@@ -37,23 +37,23 @@ const SEED_USERS = [
   // === ADMIN ===
   { id: 'admin1', name: 'Admin JasaKu', role: 'admin', phone: '080000000000', email: 'admin@jasaku.com', avatar: '', isBanned: false },
   // === MITRA ===
-  { id: 'mitra1', name: 'Andi Pratama', phone: '081200001111', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.8, reviewCount: 124, bio: 'Siap disuruh apa aja! Pengalaman 3 tahun. Cepat, amanah, dan terpercaya.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'kirim-motor'], isAvailable: true, completedJobs: 234, bankAccount: 'BCA 1234567890 a/n Andi Pratama' },
-  { id: 'mitra2', name: 'Sari Dewi', phone: '081200002222', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.9, reviewCount: 89, bio: 'Spesialis jasa ketik cepat & rapi. Skripsi, tugas, laporan, proposal. Bisa juga desain poster.', skills: ['ketik', 'fotokopi', 'desain'], isAvailable: true, completedJobs: 156, bankAccount: 'BNI 0987654321 a/n Sari Dewi' },
-  { id: 'mitra3', name: 'Budi Santoso', phone: '081200003333', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.7, reviewCount: 56, bio: 'Tukang bersih profesional. Rumah, kos, kantor jadi kinclong! Juga bantu angkut barang.', skills: ['bersih', 'cuci', 'angkut', 'tukang'], isAvailable: true, completedJobs: 98, bankAccount: 'BRI 1122334455 a/n Budi Santoso' },
-  { id: 'mitra4', name: 'Rina Marlina', phone: '081200004444', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.6, reviewCount: 43, bio: 'Jago masak berbagai masakan rumahan. Terima pesanan catering dan titip beli makanan.', skills: ['masak', 'belanja', 'titip'], isAvailable: true, completedJobs: 87, bankAccount: 'Mandiri 5566778899 a/n Rina Marlina' },
-  { id: 'mitra5', name: 'Dimas Kurniawan', phone: '081200005555', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.9, reviewCount: 201, bio: 'Servis lengkap! Antar jemput, kirim barang, angkut, sopir pribadi. Pengalaman 5 tahun.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'sopir', 'kirim-mobil', 'kirim-motor', 'angkut'], isAvailable: true, completedJobs: 312, bankAccount: 'BCA 9988776655 a/n Dimas Kurniawan' },
-  { id: 'mitra6', name: 'Putri Ayu', phone: '081200006666', role: 'mitra', city: 'Makassar', avatar: '', rating: 4.8, reviewCount: 67, bio: 'Jasa ketik express dan desain grafis. Bisa poster, banner, undangan. Juga terima foto produk.', skills: ['ketik', 'desain', 'fotokopi', 'foto'], isAvailable: false, completedJobs: 145, bankAccount: 'Dana 081200006666 a/n Putri Ayu' },
+  { id: 'mitra1', name: 'Andi Pratama', phone: '081200001111', role: 'mitra', city: 'Tuban', avatar: '', rating: 4.8, reviewCount: 124, bio: 'Siap disuruh apa aja! Pengalaman 3 tahun. Cepat, amanah, dan terpercaya.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'kirim-motor'], isAvailable: true, completedJobs: 234, bankAccount: 'BCA 1234567890 a/n Andi Pratama' },
+  { id: 'mitra2', name: 'Sari Dewi', phone: '081200002222', role: 'mitra', city: 'Tuban', avatar: '', rating: 4.9, reviewCount: 89, bio: 'Spesialis jasa ketik cepat & rapi. Skripsi, tugas, laporan, proposal. Bisa juga desain poster.', skills: ['ketik', 'fotokopi', 'desain'], isAvailable: true, completedJobs: 156, bankAccount: 'BNI 0987654321 a/n Sari Dewi' },
+  { id: 'mitra3', name: 'Budi Santoso', phone: '081200003333', role: 'mitra', city: 'Tuban', avatar: '', rating: 4.7, reviewCount: 56, bio: 'Tukang bersih profesional. Rumah, kos, kantor jadi kinclong! Juga bantu angkut barang.', skills: ['bersih', 'cuci', 'angkut', 'tukang'], isAvailable: true, completedJobs: 98, bankAccount: 'BRI 1122334455 a/n Budi Santoso' },
+  { id: 'mitra4', name: 'Rina Marlina', phone: '081200004444', role: 'mitra', city: 'Tuban', avatar: '', rating: 4.6, reviewCount: 43, bio: 'Jago masak berbagai masakan rumahan. Terima pesanan catering dan titip beli makanan.', skills: ['masak', 'belanja', 'titip'], isAvailable: true, completedJobs: 87, bankAccount: 'Mandiri 5566778899 a/n Rina Marlina' },
+  { id: 'mitra5', name: 'Dimas Kurniawan', phone: '081200005555', role: 'mitra', city: 'Tuban', avatar: '', rating: 4.9, reviewCount: 201, bio: 'Servis lengkap! Antar jemput, kirim barang, angkut, sopir pribadi. Pengalaman 5 tahun.', skills: ['suruh', 'antar', 'belanja', 'antri', 'titip', 'sopir', 'kirim-mobil', 'kirim-motor', 'angkut'], isAvailable: true, completedJobs: 312, bankAccount: 'BCA 9988776655 a/n Dimas Kurniawan' },
+  { id: 'mitra6', name: 'Putri Ayu', phone: '081200006666', role: 'mitra', city: 'Tuban', avatar: '', rating: 4.8, reviewCount: 67, bio: 'Jasa ketik express dan desain grafis. Bisa poster, banner, undangan. Juga terima foto produk.', skills: ['ketik', 'desain', 'fotokopi', 'foto'], isAvailable: false, completedJobs: 145, bankAccount: 'Dana 081200006666 a/n Putri Ayu' },
   // === PELANGGAN ===
-  { id: 'plg1', name: 'Ahmad Rizky', phone: '082100001111', role: 'pelanggan', city: 'Makassar', avatar: '', rating: 0, reviewCount: 0 },
-  { id: 'plg2', name: 'Fitri Handayani', phone: '082100002222', role: 'pelanggan', city: 'Makassar', avatar: '', rating: 0, reviewCount: 0 },
+  { id: 'plg1', name: 'Ahmad Rizky', phone: '082100001111', role: 'pelanggan', city: 'Tuban', avatar: '', rating: 0, reviewCount: 0 },
+  { id: 'plg2', name: 'Fitri Handayani', phone: '082100002222', role: 'pelanggan', city: 'Tuban', avatar: '', rating: 0, reviewCount: 0 },
 ];
 
 const SEED_ORDERS = [
   {
     id: 'ord001', pelangganId: 'plg1', mitraId: 'mitra1', category: 'suruh',
     title: 'Tolong ambilkan paket di JNE',
-    description: 'Ambilkan paket saya di JNE Jl. AP Pettarani, nomor resi JT12345678. Antar ke rumah saya.',
-    status: 'completed', address: 'Jl. Toddopuli No. 12, Makassar', scheduledDate: '2026-07-05T10:00',
+    description: 'Ambilkan paket saya di JNE Jl. Panglima Sudirman, nomor resi JT12345678. Antar ke rumah saya.',
+    status: 'completed', address: 'Jl. Pemuda No. 12, Tuban', scheduledDate: '2026-07-05T10:00',
     serviceFee: 15000, itemCost: 0, totalPrice: 15000,
     paymentMethod: 'cash', paymentStatus: 'paid',
     createdAt: '2026-07-05T09:30:00', chat: [], hasReviewed: true
@@ -74,7 +74,7 @@ const SEED_ORDERS = [
     id: 'ord003', pelangganId: 'plg2', mitraId: 'mitra5', category: 'belanja',
     title: 'Belikan bahan masak di pasar',
     description: 'Tolong belikan: ayam 1kg, bawang merah 250gr, cabai rawit 100gr, tomat 500gr, minyak goreng 1L',
-    status: 'accepted', address: 'Jl. Boulevard No. 5, Makassar', scheduledDate: '2026-07-07T08:00',
+    status: 'accepted', address: 'Jl. Basuki Rahmat No. 5, Tuban', scheduledDate: '2026-07-07T08:00',
     serviceFee: 10000, itemCost: 75000, totalPrice: 85000,
     paymentMethod: 'transfer', paymentStatus: 'prepaid',
     createdAt: '2026-07-07T07:00:00', chat: [], hasReviewed: false
@@ -484,7 +484,7 @@ function renderAuthRegister() {
         <label class="form-label">Kota</label>
         <div class="form-input-icon">
           <span class="material-icons-round input-icon">location_on</span>
-          <input type="text" class="form-input" id="regCity" placeholder="Contoh: Makassar" required>
+          <input type="text" class="form-input" id="regCity" placeholder="Contoh: Tuban" required>
         </div>
       </div>
       ${S.authRole === 'mitra' ? `
