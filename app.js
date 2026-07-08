@@ -736,15 +736,16 @@ function renderPesan(catId) {
       </div>
 
       <div class="form-group">
-        <label class="form-label">Alamat / Lokasi</label>
+        <label class="form-label">Alamat / Lokasi Tujuan</label>
         <div class="form-input-icon">
           <span class="material-icons-round input-icon">location_on</span>
           <input type="text" class="form-input" id="orderAddr" placeholder="Alamat lengkap tujuan" required>
         </div>
+        <div id="pickerMap" style="height:200px;width:100%;border-radius:var(--radius-md);margin-top:8px;z-index:1"></div>
         <div style="margin-top:8px;display:flex;gap:8px">
           <input type="hidden" id="orderCoords" value="">
           <button type="button" class="btn btn-outline" style="flex:1;font-size:13px;padding:8px" onclick="getLocation(this)">
-            <span class="material-icons-round" style="font-size:16px;margin-right:4px">my_location</span> Gunakan Lokasi Saat Ini (GPS)
+            <span class="material-icons-round" style="font-size:16px;margin-right:4px">my_location</span> Deteksi GPS
           </button>
         </div>
       </div>
@@ -869,6 +870,15 @@ function renderDetailOrder(id) {
         return `<div class="status-step ${state}"><div class="status-dot"><span class="material-icons-round">check</span></div><span class="status-label">${labels[i]}</span></div>`;
       }).join('')}
     </div>
+
+    ${o.startedAt ? `
+      <div class="card" style="margin-bottom:var(--space-lg);cursor:default;background:var(--bg-glass-strong)">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:var(--text-xs);color:var(--text-tertiary);margin-bottom:4px">Waktu Pengerjaan</div>
+          <div id="liveTimer" style="font-family:monospace;font-size:24px;font-weight:700;color:var(--primary-600)">--:--:--</div>
+        </div>
+      </div>
+    ` : ''}
 
     ${['accepted', 'in_progress'].includes(o.status) ? `<div id="liveMap"></div>` : ''}
 
@@ -1184,6 +1194,7 @@ function bindEvents(page, p) {
         document.getElementById('orderFee').value = val;
       });
     }
+    setTimeout(() => { if (typeof initPickerMap === 'function') initPickerMap(); }, 100);
   }
   if (page === 'chat') {
     const ci = document.getElementById('chatInput');
@@ -1193,6 +1204,7 @@ function bindEvents(page, p) {
   }
   if (page === 'detail-order') {
     setTimeout(() => { if (typeof initLiveMap === 'function') initLiveMap(p.id); }, 100);
+    setTimeout(() => { if (typeof initLiveTimer === 'function') initLiveTimer(p.id); }, 100);
   }
   if (page === 'mitra') {
     document.getElementById('mitraToggle')?.addEventListener('change', async (e) => {
@@ -1465,7 +1477,11 @@ async function handleNewOrder(e, catId) {
 async function updateOrder(id, status) {
   const o = S.orders.find(x => x.id === id);
   if (!o) return;
-  await window.fs.updateDoc(window.fs.doc(window.firebaseDB, "orders", id), { status });
+  const updates = { status };
+  if (status === 'in_progress' && !o.startedAt) updates.startedAt = new Date().toISOString();
+  if (status === 'completed' && !o.completedAt) updates.completedAt = new Date().toISOString();
+  
+  await window.fs.updateDoc(window.fs.doc(window.firebaseDB, "orders", id), updates);
   
   if (status === 'completed') {
     // Increment completed jobs for mitra
@@ -1699,7 +1715,68 @@ function getLocation(btn) {
   }, { enableHighAccuracy: true });
 }
 
-// ---- PETA LIVE TRACKING ----
+// ---- PETA LIVE TRACKING & PICKER ----
+
+let liveTimerInterval = null;
+function initLiveTimer(orderId) {
+  if (liveTimerInterval) clearInterval(liveTimerInterval);
+  const o = S.orders.find(x => x.id === orderId);
+  const timerEl = document.getElementById('liveTimer');
+  if (!o || !o.startedAt || !timerEl) return;
+
+  const update = () => {
+    const end = o.completedAt ? new Date(o.completedAt) : new Date();
+    const diff = Math.max(0, Math.floor((end - new Date(o.startedAt)) / 1000));
+    const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+    const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+    const s = String(diff % 60).padStart(2, '0');
+    timerEl.textContent = `${h}:${m}:${s}`;
+  };
+  
+  update();
+  if (!o.completedAt) {
+    liveTimerInterval = setInterval(update, 1000);
+  }
+}
+
+function initPickerMap() {
+  const mapContainer = document.getElementById('pickerMap');
+  if (!mapContainer || mapContainer.innerHTML !== '') return;
+  
+  // Default to Tuban
+  const defaultLoc = [-6.892, 112.052];
+  const map = L.map('pickerMap').setView(defaultLoc, 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  const marker = L.marker(defaultLoc, { draggable: true }).addTo(map);
+  document.getElementById('orderCoords').value = `${defaultLoc[0]},${defaultLoc[1]}`;
+
+  const updateLocation = async (lat, lon) => {
+    document.getElementById('orderCoords').value = `${lat},${lon}`;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        document.getElementById('orderAddr').value = data.display_name;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  marker.on('dragend', (e) => {
+    const pos = marker.getLatLng();
+    updateLocation(pos.lat, pos.lng);
+  });
+
+  map.on('click', (e) => {
+    marker.setLatLng(e.latlng);
+    updateLocation(e.latlng.lat, e.latlng.lng);
+  });
+}
+
 function initLiveMap(orderId) {
   const o = S.orders.find(x => x.id === orderId);
   if (!o || (o.status !== 'accepted' && o.status !== 'in_progress')) return;
