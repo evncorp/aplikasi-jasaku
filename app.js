@@ -192,7 +192,7 @@ const S = {
   getMitra(id) { return this.users.find(u => u.id === id); },
   getActiveMitraForSkill(skill) {
     return this.users.filter(u => {
-      if (u.role !== 'mitra' || !u.isAvailable || !u.skills || !u.skills.includes(skill)) return false;
+      if (u.role !== 'mitra' || !u.isAvailable || u.isBanned || !u.skills || !u.skills.includes(skill)) return false;
       const isBusy = this.orders.some(o => o.mitraId === u.id && ['accepted', 'in_progress'].includes(o.status));
       return !isBusy;
     });
