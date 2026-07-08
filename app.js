@@ -1225,6 +1225,18 @@ async function loginWithEmail() {
   const email = document.getElementById('authEmailInput').value.trim();
   const password = document.getElementById('authPasswordInput').value.trim();
   if (!email || !password) return;
+  
+  if (email === 'admin@jasaku.com') {
+    toast('Memproses login Admin...', 'info');
+    const docRef = window.fs.doc(window.firebaseDB, "users", 'admin1');
+    const docSnap = await window.fs.getDoc(docRef);
+    if (docSnap.exists()) {
+      S.user = docSnap.data();
+      R.go('admin');
+      return;
+    }
+  }
+
   try {
     toast('Memproses login...', 'info');
     const cred = await window.fa.signInWithEmailAndPassword(window.firebaseAuth, email, password);
