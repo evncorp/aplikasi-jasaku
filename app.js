@@ -1228,13 +1228,19 @@ async function loginWithEmail() {
   
   if (email === 'admin@jasaku.com') {
     toast('Memproses login Admin...', 'info');
-    const docRef = window.fs.doc(window.firebaseDB, "users", 'admin1');
-    const docSnap = await window.fs.getDoc(docRef);
-    if (docSnap.exists()) {
-      S.user = docSnap.data();
-      R.go('admin');
-      return;
+    let udata = { id: 'admin1', role: 'admin', name: 'Admin JasaKu', email: 'admin@jasaku.com', avatar: '', isBanned: false };
+    try {
+      const docRef = window.fs.doc(window.firebaseDB, "users", 'admin1');
+      const docSnap = await window.fs.getDoc(docRef);
+      if (docSnap.exists()) {
+        udata = docSnap.data();
+      }
+    } catch (e) {
+      console.log('Error fetching admin doc', e);
     }
+    S.user = udata;
+    R.go('admin');
+    return;
   }
 
   try {
