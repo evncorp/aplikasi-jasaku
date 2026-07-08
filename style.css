@@ -1808,7 +1808,7 @@ ul, ol {
   font-size: 22px;
 }
 
-.profile-menu-item span {
+.profile-menu-item span:not(.material-icons-round) {
   flex: 1;
   font-weight: 500;
 }
