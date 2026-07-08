@@ -495,6 +495,13 @@ function renderAuthRegister() {
         </div>
       </div>
       <div class="form-group">
+        <label class="form-label">Nomor WhatsApp</label>
+        <div class="form-input-icon">
+          <span class="material-icons-round input-icon">phone</span>
+          <input type="tel" class="form-input" id="regPhone" placeholder="Contoh: 081234567890" required>
+        </div>
+      </div>
+      <div class="form-group">
         <label class="form-label">Kota</label>
         <div class="form-input-icon">
           <span class="material-icons-round input-icon">location_on</span>
@@ -1293,6 +1300,7 @@ async function handleRegSubmit(e) {
     // Save temp data, go to skills step
     S._regTemp = {
       name: document.getElementById('regName').value.trim(),
+      phone: document.getElementById('regPhone').value.trim(),
       city: document.getElementById('regCity').value.trim(),
       bio: document.getElementById('regBio')?.value?.trim() || '',
       bankAccount: document.getElementById('regBank')?.value?.trim() || '',
@@ -1303,7 +1311,8 @@ async function handleRegSubmit(e) {
   } else {
     // Pelanggan — complete registration
     const user = {
-      id: S.authUser.uid, email: S.authUser.email || '', phone: S.authPhone || '', role: 'pelanggan',
+      id: S.authUser.uid, email: S.authUser.email || '', 
+      phone: document.getElementById('regPhone').value.trim(), role: 'pelanggan',
       name: document.getElementById('regName').value.trim(),
       city: document.getElementById('regCity').value.trim(),
       avatar: S.authUser.photoURL || '', rating: 0, reviewCount: 0,
@@ -1332,7 +1341,8 @@ async function completeRegistration() {
   if (S.regSkills.length === 0) { toast('Pilih minimal 1 keahlian!', 'warning'); return; }
   const temp = S._regTemp || {};
   const user = {
-    id: S.authUser.uid, email: S.authUser.email || '', phone: S.authPhone || '', role: 'mitra',
+    id: S.authUser.uid, email: S.authUser.email || '', 
+    phone: temp.phone || S.authPhone || '', role: 'mitra',
     name: temp.name || 'Mitra Baru', city: temp.city || '',
     bio: temp.bio || '', bankAccount: temp.bankAccount || '',
     avatar: S.authUser.photoURL || '', rating: 0, reviewCount: 0,
@@ -1452,8 +1462,7 @@ async function handleNewOrder(e, catId) {
 async function updateOrder(id, status) {
   const o = S.orders.find(x => x.id === id);
   if (!o) return;
-  const paymentStatus = (status === 'completed' && o.paymentStatus === 'prepaid') ? 'prepaid' : (status === 'completed' ? 'unpaid' : o.paymentStatus);
-  await window.fs.updateDoc(window.fs.doc(window.firebaseDB, "orders", id), { status, paymentStatus });
+  await window.fs.updateDoc(window.fs.doc(window.firebaseDB, "orders", id), { status });
   
   if (status === 'completed') {
     // Increment completed jobs for mitra
@@ -1551,6 +1560,7 @@ function showEditProfile() {
   const u = S.user;
   showModal('Edit Profil', `
     <div class="form-group"><label class="form-label">Nama</label><input type="text" class="form-input" id="editName" value="${u.name}"></div>
+    <div class="form-group"><label class="form-label">Nomor WA</label><input type="tel" class="form-input" id="editPhone" value="${u.phone || ''}"></div>
     <div class="form-group"><label class="form-label">Kota</label><input type="text" class="form-input" id="editCity" value="${u.city || ''}"></div>
     ${u.role === 'mitra' ? `
       <div class="form-group"><label class="form-label">Bio</label><textarea class="form-textarea" id="editBio">${u.bio || ''}</textarea></div>
@@ -1558,8 +1568,9 @@ function showEditProfile() {
     ` : ''}
   `, async () => {
     const name = document.getElementById('editName').value.trim() || S.user.name;
+    const phone = document.getElementById('editPhone').value.trim() || S.user.phone;
     const city = document.getElementById('editCity').value.trim() || S.user.city;
-    const updates = { name, city };
+    const updates = { name, phone, city };
     if (S.user.role === 'mitra') {
       updates.bio = document.getElementById('editBio')?.value?.trim() || S.user.bio;
       updates.bankAccount = document.getElementById('editBank')?.value?.trim() || S.user.bankAccount;
