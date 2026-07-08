@@ -591,7 +591,7 @@ function renderDashboard() {
 
     <div class="section-header"><h2 class="section-title">⭐ Mitra Terbaik</h2></div>
     <div style="margin-bottom:var(--space-xl)">
-      ${S.users.filter(u => u.role === 'mitra' && u.isAvailable).sort((a, b) => b.rating - a.rating).slice(0, 4).map(m => renderMitraCard(m)).join('')}
+      ${S.users.filter(u => u.role === 'mitra' && u.isAvailable && !u.isBanned).sort((a, b) => b.rating - a.rating).slice(0, 4).map(m => renderMitraCard(m)).join('')}
     </div>
   </div>`;
 }
