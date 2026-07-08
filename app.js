@@ -268,6 +268,7 @@ function render(page, p = {}) {
 
   if (guarded.includes(page) && !S.user) { R.go('auth'); return; }
   if (page === 'admin' && S.user.role !== 'admin') { toast('Akses Ditolak', 'error'); R.go('landing'); return; }
+  if (['katalog', 'pesan'].includes(page) && S.user && S.user.role === 'mitra') { toast('Mitra tidak dapat memesan jasa', 'warning'); R.go('mitra'); return; }
 
   const pages = {
     landing: renderLanding, auth: () => renderAuth(),
@@ -288,6 +289,8 @@ function updateNav(page) {
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page || (page === 'mitra' && el.dataset.page === 'dashboard'));
   });
+  const kat = document.getElementById('nav-katalog');
+  if (kat) kat.style.display = (S.user && S.user.role === 'mitra') ? 'none' : 'flex';
 }
 
 // ---- HEADER ----
