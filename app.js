@@ -1701,7 +1701,6 @@ function initLiveMap(orderId) {
         }
       }
     });
-    });
 }
 
 // ---- ADMIN DASHBOARD ----
